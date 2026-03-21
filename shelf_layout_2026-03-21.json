@@ -1,0 +1,148 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-03-21T05:40:58.051Z",
+  "categories": [
+    {
+      "id": "football",
+      "name": "Football",
+      "color": "#4CAF50"
+    },
+    {
+      "id": "basketball",
+      "name": "Basketball",
+      "color": "#FF9800"
+    },
+    {
+      "id": "tennis",
+      "name": "Tennis",
+      "color": "#2196F3"
+    },
+    {
+      "id": "table_tennis",
+      "name": "Table Tennis",
+      "color": "#9C27B0"
+    },
+    {
+      "id": "badminton",
+      "name": "Badminton",
+      "color": "#00BCD4"
+    },
+    {
+      "id": "swimming",
+      "name": "Swimming",
+      "color": "#3F51B5"
+    },
+    {
+      "id": "running",
+      "name": "Running",
+      "color": "#E91E63"
+    },
+    {
+      "id": "yoga",
+      "name": "Yoga",
+      "color": "#795548"
+    },
+    {
+      "id": "cycling",
+      "name": "Cycling",
+      "color": "#607D8B"
+    },
+    {
+      "id": "fitness",
+      "name": "Fitness",
+      "color": "#FF5722"
+    }
+  ],
+  "shelves": [
+    {
+      "id": "shelf_1774017024130_41lgeg0h9",
+      "type": "vertical",
+      "x": 260,
+      "y": 220,
+      "length": 1.5,
+      "category": "table_tennis",
+      "color": null
+    },
+    {
+      "id": "shelf_1774017038879_wt7d6rd7t",
+      "type": "vertical",
+      "x": 260,
+      "y": 400,
+      "length": 1.5,
+      "category": "football",
+      "color": null
+    },
+    {
+      "id": "shelf_1774017050615_8m6pqwgsj",
+      "type": "horizontal",
+      "x": 280,
+      "y": 200,
+      "length": 2,
+      "category": "tennis",
+      "color": "#9ca3af"
+    },
+    {
+      "id": "shelf_1774017063799_f4hdkfbpb",
+      "type": "horizontal",
+      "x": 520,
+      "y": 200,
+      "length": 1.5,
+      "category": "table_tennis",
+      "color": "#9ca3af"
+    },
+    {
+      "id": "shelf_1774017073536_echbas8zs",
+      "type": "vertical",
+      "x": 700,
+      "y": 80,
+      "length": 1,
+      "category": "badminton",
+      "color": "#9ca3af"
+    },
+    {
+      "id": "shelf_1774017096020_y0vb8erlx",
+      "type": "horizontal",
+      "x": 720,
+      "y": 60,
+      "length": 1.5,
+      "category": "swimming",
+      "color": "#9ca3af"
+    },
+    {
+      "id": "shelf_1774017105432_xsi3x2spo",
+      "type": "vertical",
+      "x": 900,
+      "y": 80,
+      "length": 3,
+      "category": "running",
+      "color": "#9ca3af"
+    },
+    {
+      "id": "shelf_1774017113265_hdyqv7qi2",
+      "type": "horizontal",
+      "x": 780,
+      "y": 440,
+      "length": 1,
+      "category": "yoga",
+      "color": "#9ca3af"
+    },
+    {
+      "id": "shelf_1774017121394_btbi3uwk9",
+      "type": "horizontal",
+      "x": 660,
+      "y": 440,
+      "length": 1,
+      "category": "cycling",
+      "color": "#9ca3af"
+    },
+    {
+      "id": "shelf_1774017130839_9iga1lpou",
+      "type": "vertical",
+      "x": 640,
+      "y": 460,
+      "length": 1,
+      "category": "fitness",
+      "color": "#9ca3af"
+    }
+  ]
+}

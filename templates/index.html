@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store Product Sales Efficiency Analysis Tool</title>
+    <link rel="stylesheet" href="/static/css/styles.css?v=6">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <span class="material-icons header-icon">store</span>
+                <h1>Store Shelf Efficiency Analyzer</h1>
+            </div>
+            <div class="header-right">
+                <button id="undoBtn" class="btn btn-icon" title="Undo (Ctrl+Z)" disabled>
+                    <span class="material-icons">undo</span>
+                </button>
+                <button id="redoBtn" class="btn btn-icon" title="Redo (Ctrl+Y)" disabled>
+                    <span class="material-icons">redo</span>
+                </button>
+                <div class="zoom-controls">
+                    <button id="zoomOutBtn" class="btn btn-icon" title="Zoom Out">
+                        <span class="material-icons">remove</span>
+                    </button>
+                    <span id="zoomLevel" class="zoom-level">100%</span>
+                    <button id="zoomInBtn" class="btn btn-icon" title="Zoom In">
+                        <span class="material-icons">add</span>
+                    </button>
+                    <button id="zoomResetBtn" class="btn btn-icon" title="Reset Zoom">
+                        <span class="material-icons">fit_screen</span>
+                    </button>
+                </div>
+                <button id="loadLayoutBtn" class="btn btn-secondary" title="Load Layout">
+                    <span class="material-icons">folder_open</span>
+                    Load
+                </button>
+                <input type="file" id="layoutFileInput" accept=".json" hidden>
+                <button id="saveLayoutBtn" class="btn btn-secondary" title="Save Layout as JSON">
+                    <span class="material-icons">save</span>
+                    Save
+                </button>
+                <button id="clearBtn" class="btn btn-secondary">
+                    <span class="material-icons">delete_outline</span>
+                    Clear All
+                </button>
+                <button id="exportBtn" class="btn btn-primary" title="Export as CSV">
+                    <span class="material-icons">download</span>
+                    Export CSV
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Sidebar - Tools -->
+            <aside class="sidebar left-sidebar">
+                <div class="sidebar-section">
+                    <h3>Shelf Units</h3>
+                    <p class="hint">Drag shelf units to the canvas</p>
+                    <div class="shelf-palette">
+                        <div class="shelf-unit-template" draggable="true" data-type="horizontal">
+                            <div class="shelf-preview horizontal"></div>
+                            <span>Horizontal (0.5m)</span>
+                        </div>
+                        <div class="shelf-unit-template" draggable="true" data-type="vertical">
+                            <div class="shelf-preview vertical"></div>
+                            <span>Vertical (0.5m)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3>Product Categories</h3>
+                    <div id="categoryList" class="category-list">
+                        <!-- Categories will be loaded dynamically -->
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3>Color Mode</h3>
+                    <div class="mode-toggle">
+                        <button id="categoryModeBtn" class="mode-btn active">
+                            <span class="material-icons">category</span>
+                            Category
+                        </button>
+                        <button id="heatmapModeBtn" class="mode-btn">
+                            <span class="material-icons">gradient</span>
+                            Heatmap
+                        </button>
+                    </div>
+                    <div id="heatmapLegend" class="heatmap-legend hidden">
+                        <div class="legend-title">Efficiency (yuan/m)</div>
+                        <div class="legend-gradient"></div>
+                        <div class="legend-labels">
+                            <span id="legendMin">0</span>
+                            <span id="legendMax">1000</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Canvas Area -->
+            <main class="canvas-container">
+                <div id="canvas" class="canvas">
+                    <div class="canvas-grid"></div>
+                    <div class="canvas-hint">
+                        <span class="material-icons">add_shopping_cart</span>
+                        <p>Drag shelf units here to build your store layout</p>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Right Sidebar - Data & Results -->
+            <aside class="sidebar right-sidebar">
+                <div class="sidebar-section">
+                    <h3>Sales Data Import</h3>
+                    <div class="import-section">
+                        <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" hidden>
+                        <button id="importBtn" class="btn btn-primary full-width">
+                            <span class="material-icons">upload_file</span>
+                            Import Sales Data
+                        </button>
+                        <p class="file-hint">Supports .xlsx, .xls, .csv files</p>
+                        <div id="importStatus" class="import-status hidden">
+                            <span class="material-icons">check_circle</span>
+                            <span id="importStatusText"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3>Calculate Efficiency</h3>
+                    <button id="calculateBtn" class="btn btn-accent full-width" disabled>
+                        <span class="material-icons">calculate</span>
+                        Calculate
+                    </button>
+                    <div id="calculationStatus" class="calculation-status hidden">
+                        <div class="loading-spinner"></div>
+                        <span>Calculating...</span>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3>Summary</h3>
+                    <div id="summaryPanel" class="summary-panel">
+                        <div class="summary-empty">
+                            <span class="material-icons">analytics</span>
+                            <p>Import data and calculate to see results</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3>Shelf Info</h3>
+                    <div id="shelfInfoPanel" class="shelf-info-panel">
+                        <div class="info-empty">
+                            <span class="material-icons">touch_app</span>
+                            <p>Click a shelf to view details</p>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <!-- Tooltip -->
+        <div id="tooltip" class="tooltip hidden">
+            <div class="tooltip-content"></div>
+        </div>
+
+        <!-- Shelf Config Modal -->
+        <div id="shelfConfigModal" class="modal hidden">
+            <div class="modal-backdrop"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Configure Shelf</h2>
+                    <button class="modal-close">
+                        <span class="material-icons">close</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Product Category</label>
+                        <select id="shelfCategorySelect" class="form-select">
+                            <option value="">-- Select Category --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Custom Color (optional)</label>
+                        <div class="color-picker-row">
+                            <input type="color" id="shelfColorPicker" value="#808080">
+                            <input type="text" id="shelfColorHex" class="form-input" value="#808080" maxlength="7">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Shelf Length (meters)</label>
+                        <input type="number" id="shelfLengthInput" class="form-input" step="0.5" min="0.5" value="0.5">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="deleteShelfBtn" class="btn btn-danger">
+                        <span class="material-icons">delete</span>
+                        Delete
+                    </button>
+                    <button id="saveShelfBtn" class="btn btn-primary">
+                        <span class="material-icons">save</span>
+                        Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js?v=8"></script>
+</body>
+</html>
