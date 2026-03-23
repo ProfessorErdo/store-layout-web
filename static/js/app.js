@@ -20,7 +20,10 @@ const state = {
     dragOffset: { x: 0, y: 0 },
     resizeHandle: null,
     zoomLevel: 1,
-    panOffset: { x: 0, y: 0 }
+    panOffset: { x: 0, y: 0 },
+    // Image analysis state
+    uploadedImage: null,
+    ollamaAvailable: false
 };
 
 // ==================== Constants ====================
@@ -55,7 +58,16 @@ const elements = {
     summaryPanel: null,
     shelfInfoPanel: null,
     importStatus: null,
-    calculationStatus: null
+    calculationStatus: null,
+    // Image analysis elements
+    layoutImageInput: null,
+    importImageBtn: null,
+    imagePreviewContainer: null,
+    imagePreview: null,
+    clearImageBtn: null,
+    analyzeImageBtn: null,
+    ollamaStatus: null,
+    analysisProgress: null
 };
 
 // ==================== Initialization ====================
@@ -65,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadCategories();
     initializeDragAndDrop();
     initCanvasPanning();
+    checkOllamaStatus();
 });
 
 function initializeElements() {
@@ -93,13 +106,28 @@ function initializeElements() {
     elements.shelfInfoPanel = document.getElementById('shelfInfoPanel');
     elements.importStatus = document.getElementById('importStatus');
     elements.calculationStatus = document.getElementById('calculationStatus');
+    // Image analysis elements
+    elements.layoutImageInput = document.getElementById('layoutImageInput');
+    elements.importImageBtn = document.getElementById('importImageBtn');
+    elements.imagePreviewContainer = document.getElementById('imagePreviewContainer');
+    elements.imagePreview = document.getElementById('imagePreview');
+    elements.clearImageBtn = document.getElementById('clearImageBtn');
+    elements.analyzeImageBtn = document.getElementById('analyzeImageBtn');
+    elements.ollamaStatus = document.getElementById('ollamaStatus');
+    elements.analysisProgress = document.getElementById('analysisProgress');
 }
 
 function initializeEventListeners() {
     // Import button
     elements.importBtn.addEventListener('click', () => elements.fileInput.click());
     elements.fileInput.addEventListener('change', handleFileImport);
-    
+
+    // Image analysis buttons
+    elements.importImageBtn.addEventListener('click', () => elements.layoutImageInput.click());
+    elements.layoutImageInput.addEventListener('change', handleImageUpload);
+    elements.clearImageBtn.addEventListener('click', clearUploadedImage);
+    elements.analyzeImageBtn.addEventListener('click', handleImageAnalysis);
+
     // Calculate button
     elements.calculateBtn.addEventListener('click', handleCalculate);
     
@@ -1236,3 +1264,257 @@ function initCanvasPanning() {
 // Make openShelfConfig available globally for onclick
 window.openShelfConfig = openShelfConfig;
 window.state = state;
+
+// ==================== Image Analysis Functions ====================
+async function checkOllamaStatus() {
+    const statusEl = elements.ollamaStatus;
+    const indicator = statusEl.querySelector('.status-indicator');
+    const statusText = statusEl.querySelector('.status-text');
+
+    try {
+        const response = await fetch('/api/ollama-status');
+        const data = await response.json();
+
+        if (data.success && data.ollama_running) {
+            state.ollamaAvailable = true;
+            indicator.classList.add('online');
+            if (data.has_vision_model) {
+                statusText.textContent = `Ollama ready (${data.configured_model})`;
+            } else {
+                statusText.textContent = `Ollama running (no vision model)`;
+                statusText.style.color = '#f59e0b';
+            }
+        } else {
+            state.ollamaAvailable = false;
+            indicator.classList.add('offline');
+            statusText.textContent = 'Ollama not running';
+            statusText.style.color = '#ef4444';
+        }
+    } catch (error) {
+        state.ollamaAvailable = false;
+        indicator.classList.add('offline');
+        statusText.textContent = 'Cannot check Ollama';
+        statusText.style.color = '#ef4444';
+    }
+}
+
+function handleImageUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+        alert('Please upload a valid image file (JPEG, PNG, or WebP)');
+        return;
+    }
+
+    // Store the file for later analysis
+    state.uploadedImage = file;
+
+    // Show preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        elements.imagePreview.src = e.target.result;
+        elements.imagePreviewContainer.classList.remove('hidden');
+        elements.analyzeImageBtn.classList.remove('hidden');
+        elements.importImageBtn.classList.add('hidden');
+    };
+    reader.readAsDataURL(file);
+}
+
+function clearUploadedImage() {
+    state.uploadedImage = null;
+    elements.layoutImageInput.value = '';
+    elements.imagePreviewContainer.classList.add('hidden');
+    elements.analyzeImageBtn.classList.add('hidden');
+    elements.importImageBtn.classList.remove('hidden');
+    elements.analysisProgress.classList.add('hidden');
+}
+
+async function handleImageAnalysis() {
+    if (!state.uploadedImage) {
+        alert('Please upload an image first');
+        return;
+    }
+
+    if (!state.ollamaAvailable) {
+        alert('Ollama is not available. Please start Ollama server first.');
+        return;
+    }
+
+    // Show progress
+    elements.analysisProgress.classList.remove('hidden');
+    elements.analyzeImageBtn.disabled = true;
+
+    const progressFill = elements.analysisProgress.querySelector('.progress-fill');
+    const progressText = elements.analysisProgress.querySelector('.progress-text');
+
+    // Animate progress bar
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        progress = Math.min(progress + Math.random() * 15, 90);
+        progressFill.style.width = progress + '%';
+    }, 500);
+
+    progressText.textContent = 'Analyzing image with AI...';
+
+    try {
+        const formData = new FormData();
+        formData.append('file', state.uploadedImage);
+
+        const response = await fetch('/api/analyze-layout-image', {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+
+        clearInterval(progressInterval);
+        progressFill.style.width = '100%';
+
+        if (result.success) {
+            progressText.textContent = 'Analysis complete!';
+
+            // Process the extracted shelves
+            const shelves = result.data.shelves || [];
+
+            if (shelves.length === 0) {
+                progressText.textContent = 'No shelves detected in image';
+                setTimeout(() => {
+                    elements.analysisProgress.classList.add('hidden');
+                }, 2000);
+                return;
+            }
+
+            // Generate shelves from analysis (pass full result for processedImageSize)
+            generateShelvesFromAnalysis(result);
+
+            // Save the analysis result to a JSON file
+            saveAnalysisToJson(result.data);
+
+            setTimeout(() => {
+                elements.analysisProgress.classList.add('hidden');
+                clearUploadedImage();
+            }, 1500);
+        } else {
+            throw new Error(result.detail || 'Analysis failed');
+        }
+    } catch (error) {
+        clearInterval(progressInterval);
+        progressText.textContent = 'Error: ' + error.message;
+        progressFill.style.backgroundColor = '#ef4444';
+
+        console.error('Image analysis error:', error);
+
+        setTimeout(() => {
+            elements.analysisProgress.classList.add('hidden');
+            progressFill.style.backgroundColor = '';
+            elements.analyzeImageBtn.disabled = false;
+        }, 3000);
+        return;
+    }
+
+    elements.analyzeImageBtn.disabled = false;
+}
+
+function generateShelvesFromAnalysis(result) {
+    const analysisData = result.data || {};
+    const shelves = analysisData.shelves || [];
+
+    // Get image dimensions - prefer processedImageSize, fallback to imageInfo
+    const processedSize = result.processedImageSize || {};
+    const imageInfo = analysisData.imageInfo || {};
+    const imageWidth = processedSize.width || imageInfo.width || 800;
+    const imageHeight = processedSize.height || imageInfo.height || 600;
+
+    console.log('Image dimensions:', imageWidth, 'x', imageHeight);
+    console.log('Detected shelves:', shelves);
+
+    // Get canvas dimensions for scaling
+    const canvasRect = elements.canvas.getBoundingClientRect();
+    const canvasWidth = canvasRect.width - 100; // Leave some margin
+    const canvasHeight = canvasRect.height - 100;
+
+    // Calculate scale factor
+    const scaleX = canvasWidth / imageWidth;
+    const scaleY = canvasHeight / imageHeight;
+
+    console.log('Scale factors:', scaleX, scaleY);
+
+    // Clear existing shelves
+    document.querySelectorAll('.shelf-item').forEach(el => el.remove());
+    state.shelves = [];
+    state.history = [];
+    state.historyIndex = -1;
+
+    // Create shelves from analysis
+    shelves.forEach((shelfData, index) => {
+        const id = 'shelf_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+
+        // Scale coordinates
+        const x = Math.round((shelfData.x || 0) * scaleX / GRID_SIZE) * GRID_SIZE + 50;
+        const y = Math.round((shelfData.y || 0) * scaleY / GRID_SIZE) * GRID_SIZE + 50;
+
+        // Determine shelf type
+        let type = shelfData.type || 'horizontal';
+        if (!shelfData.type && shelfData.width && shelfData.height) {
+            type = shelfData.width > shelfData.height ? 'horizontal' : 'vertical';
+        }
+
+        // Map category name to category ID
+        let categoryId = null;
+        if (shelfData.category && shelfData.category !== 'null') {
+            const categoryLower = shelfData.category.toLowerCase();
+            const matchedCategory = state.categories.find(cat =>
+                cat.id.toLowerCase() === categoryLower ||
+                cat.name.toLowerCase() === categoryLower ||
+                cat.name.toLowerCase().includes(categoryLower) ||
+                categoryLower.includes(cat.name.toLowerCase())
+            );
+            if (matchedCategory) {
+                categoryId = matchedCategory.id;
+            }
+        }
+
+        const shelf = {
+            id,
+            type,
+            x: Math.max(0, x),
+            y: Math.max(0, y),
+            length: shelfData.length || SHELF_UNIT_LENGTH,
+            category: categoryId,
+            color: null,
+            efficiency: 0,
+            turnover: 0,
+            confidence: shelfData.confidence || 0.5
+        };
+
+        console.log('Creating shelf:', shelf);
+        state.shelves.push(shelf);
+        renderShelf(shelf);
+    });
+
+    saveToHistory();
+    hideCanvasHint();
+
+    // Show summary
+    alert(`Generated ${shelves.length} shelves from image analysis.\n\n` +
+          `Tip: You can adjust shelf positions by dragging, and assign categories by double-clicking.`);
+}
+
+function saveAnalysisToJson(analysisData) {
+    const exportData = {
+        version: '1.0',
+        timestamp: new Date().toISOString(),
+        source: 'image_analysis',
+        imageInfo: analysisData.imageInfo || {},
+        shelves: analysisData.shelves || []
+    };
+
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `shelf_analysis_${new Date().toISOString().slice(0, 10)}.json`;
+    link.click();
+}

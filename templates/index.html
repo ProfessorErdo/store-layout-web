@@ -60,6 +60,38 @@
             <!-- Left Sidebar - Tools -->
             <aside class="sidebar left-sidebar">
                 <div class="sidebar-section">
+                    <h3>Image Import</h3>
+                    <p class="hint">Import layout from shelf image</p>
+                    <div class="image-import-section">
+                        <input type="file" id="layoutImageInput" accept="image/jpeg,image/png,image/webp" hidden>
+                        <button id="importImageBtn" class="btn btn-primary full-width">
+                            <span class="material-icons">image</span>
+                            Upload Shelf Image
+                        </button>
+                        <div id="imagePreviewContainer" class="image-preview-container hidden">
+                            <img id="imagePreview" class="image-preview" alt="Preview">
+                            <button id="clearImageBtn" class="btn btn-icon-small" title="Clear image">
+                                <span class="material-icons">close</span>
+                            </button>
+                        </div>
+                        <button id="analyzeImageBtn" class="btn btn-accent full-width hidden">
+                            <span class="material-icons">auto_awesome</span>
+                            Analyze with AI
+                        </button>
+                        <div id="ollamaStatus" class="ollama-status">
+                            <span class="status-indicator"></span>
+                            <span class="status-text">Checking Ollama...</span>
+                        </div>
+                        <div id="analysisProgress" class="analysis-progress hidden">
+                            <div class="progress-bar">
+                                <div class="progress-fill"></div>
+                            </div>
+                            <span class="progress-text">Analyzing image...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
                     <h3>Shelf Units</h3>
                     <p class="hint">Drag shelf units to the canvas</p>
                     <div class="shelf-palette">

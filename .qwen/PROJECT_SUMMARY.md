@@ -1,130 +1,146 @@
-The user wants me to generate a comprehensive project summary based on the conversation history. Let me analyze the entire conversation and extract the key information.
+The user wants me to generate a comprehensive project summary based on the conversation history. Let me analyze the key points from the conversation:
+
+1. **Overall Goal**: The user wanted to implement an image import feature for the Store Product Sales Efficiency Analysis Tool that uses Ollama's vision model (qwen3-vl) to analyze shelf images and extract layout information.
+
+2. **Key Knowledge**:
+   - Technology Stack: Python 3.12 + FastAPI + Uvicorn backend, HTML/CSS/JavaScript frontend
+   - Ollama integration with qwen3-vl:2b vision model
+   - Image preprocessing: resize to 512x512 max, JPEG quality 75%
+   - API endpoints: /api/analyze-layout-image, /api/ollama-status
+   - Server runs on port 8000
+   - Package manager: uv
+
+3. **Recent Actions**:
+   - Added Ollama integration to main.py
+   - Added image upload UI to index.html
+   - Added JavaScript functions for image analysis
+   - Added CSS styles for new UI elements
+   - Fixed issues:
+     - Model name: qwen3-vl → qwen3-vl:2b
+     - API endpoint: /api/chat → /api/generate
+     - Timeout: 120s → 300s
+     - Image preprocessing for faster processing
+     - Frontend shelf generation with proper scaling
+
+4. **Current Plan**: All features are implemented and tested successfully.
+
+Let me create a comprehensive summary.# Project Summary
 
 ## Overall Goal
-The user wanted to develop a Store Product Sales Efficiency Analysis Tool - a web application for visualizing store shelf layouts and analyzing sales efficiency.
-
-## Key Knowledge
-- Technology Stack: Python 3.12 + FastAPI backend, HTML/CSS/JavaScript frontend
-- Project Location: /Users/fanfan/Documents/github/store-layout-web
-- Package Manager: uv
-- Server: uvicorn running on port 8000
-- Remote Access: cloudflared tunnel
-
-## Recent Actions
-1. Built the entire application from scratch based on BRD.md
-2. Fixed several bugs (vertical shelf rendering, category colors, etc.)
-3. Added new features (zoom, pan, drag-drop categories, save/load, export)
-4. Updated documentation (README.md, BRD.md)
-
-## Current Plan
-The project seems complete with all features implemented. Let me summarize what was done.# Project Summary
-
-## Overall Goal
-Develop a web-based Store Product Sales Efficiency Analysis Tool that visualizes store shelf layouts, calculates sales efficiency (turnover/shelf length), and helps optimize shelf display strategies.
+Develop a web-based Store Product Sales Efficiency Analysis Tool with AI-powered image import feature that analyzes shelf images using Ollama's qwen3-vl vision model to automatically extract and generate shelf layouts.
 
 ## Key Knowledge
 
 ### Technology Stack
 - **Backend**: Python 3.12 + FastAPI + Uvicorn
 - **Frontend**: HTML5 + CSS3 + Vanilla JavaScript (no framework)
-- **Data Processing**: Pandas (Excel/CSV parsing)
+- **AI Integration**: Ollama with `qwen3-vl:2b` vision model
+- **Image Processing**: Pillow (PIL) for preprocessing
 - **Package Manager**: uv
-- **Remote Access**: Cloudflare Tunnel (cloudflared)
 
 ### Project Structure
 ```
 /Users/fanfan/Documents/github/store-layout-web/
-├── main.py                 # FastAPI application
-├── pyproject.toml          # Dependencies
-├── BRD.md                  # Business Requirements Document (V2.1)
-├── README.md               # Project documentation (V2.1)
-├── templates/
-│   └── index.html          # Main HTML template
+├── main.py                 # FastAPI application with Ollama integration
+├── pyproject.toml          # Dependencies (includes pillow, requests)
+├── templates/index.html    # Main HTML with image upload UI
 ├── static/
-│   ├── css/styles.css      # Application styles
-│   └── js/app.js           # Frontend JavaScript
-└── sample_sales_data.csv   # Sample test data
+│   ├── css/styles.css      # Styles for image import section
+│   └── js/app.js           # Image analysis functions
+├── store_layout_sample.jpg # Test image (1702x1276, 155KB)
+└── .qwen/PROJECT_SUMMARY.md
 ```
 
 ### Server Commands
 ```bash
 # Start server
 cd /Users/fanfan/Documents/github/store-layout-web
-.venv/bin/python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+.venv/bin/python -m uvicorn main:app --host 127.0.0.1 --port 8000
 
 # Stop server
 pkill -f uvicorn
-
-# Start remote tunnel
-cloudflared tunnel --url http://localhost:8000
-
-# Stop tunnel
-pkill -f cloudflared
 ```
 
+### Ollama Configuration
+- **Model**: `qwen3-vl:2b` (2B parameter vision model)
+- **API Endpoint**: `http://localhost:11434/api/generate`
+- **Timeout**: 300 seconds (5 minutes)
+- **Image Preprocessing**: Max 512x512 pixels, JPEG quality 75%
+
+### API Endpoints
+- `GET /api/ollama-status` - Check Ollama server status and available models
+- `POST /api/analyze-layout-image` - Analyze shelf image, returns JSON with shelves array
+
 ### Key Conventions
-- Shelf unit length: 0.5 meters
+- Shelf unit length: 0.5 meters (default)
 - Grid size: 20px
-- Zoom range: 25% - 300%
-- Heatmap colors: Red (low) → Yellow (mid) → Green (high efficiency)
-- Unassigned shelves: Gray color
-- Labels: Dark text on semi-transparent white background
+- Image max size: 512x512 for faster processing
+- Response includes `processedImageSize` for accurate frontend scaling
 
 ## Recent Actions
 
-### Completed Features (V2.1)
-1. **Core Features**:
-   - Visual shelf layout builder with drag-and-drop
-   - Horizontal and vertical shelf units
-   - Product category assignment (drag-drop or double-click)
-   - Sales data import (Excel/CSV)
-   - Efficiency calculation (turnover / shelf length)
-   - Dual color modes (Category & Heatmap)
+### Implemented Features (V2.2 - Image Import)
+1. **Backend Ollama Integration**:
+   - Added `preprocess_image()` function for image resizing/optimization
+   - Added `call_ollama_vision()` using `/api/generate` endpoint
+   - Added `clean_ollama_json_response()` for parsing AI responses
+   - Returns `processedImageSize` with actual dimensions
 
-2. **Enhanced Features**:
-   - Shelf resizing via edge handle drag
-   - Zoom control (25%-300%) with pan functionality
-   - Save layout as JSON (reloadable)
-   - Export efficiency data as CSV (with color info)
-   - Undo/Redo (Ctrl+Z/Y)
-   - Remote access via Cloudflare Tunnel
+2. **Frontend Image Analysis**:
+   - Image upload with preview
+   - Ollama status indicator (green=online, red=offline)
+   - Progress bar during analysis
+   - `generateShelvesFromAnalysis()` with proper coordinate scaling
+   - Automatic JSON file download
 
 3. **Bug Fixes**:
-   - Fixed vertical shelf rendering (was square, now rectangle)
-   - Fixed category color synchronization
-   - Fixed shelf label positioning (top for horizontal, left for vertical)
-   - Separated Save (JSON) from Export (CSV)
+   - Model name: Changed `qwen3-vl` to `qwen3-vl:2b`
+   - API endpoint: Changed `/api/chat` to `/api/generate` (works better with vision models)
+   - Timeout: Increased from 120s to 300s
+   - Image size: Reduced from 800px to 512px max for faster processing
+   - Frontend: Fixed shelf generation when `imageInfo` dimensions are 0
 
-4. **Documentation**:
-   - Updated README.md to V2.1
-   - Updated BRD.md to V2.1
+### Test Results
+Successfully analyzed `store_layout_sample.jpg`:
+```json
+{
+  "success": true,
+  "data": {
+    "shelves": [
+      {"type": "vertical", "category": "football", "length": 1.5},
+      {"type": "vertical", "category": "swimming", "length": 2.0},
+      {"type": "vertical", "category": "tennis", "length": 2.5},
+      {"type": "horizontal", "category": "basketball", "length": 3.0}
+    ]
+  },
+  "processedImageSize": {"width": 512, "height": 384}
+}
+```
 
 ## Current Plan
 
-All requested features have been implemented:
-
 | Status | Feature |
 |--------|---------|
-| [DONE] | FastAPI backend with endpoints |
-| [DONE] | Frontend HTML/CSS/JS structure |
-| [DONE] | Drag-and-drop shelf layout builder |
-| [DONE] | Product category configuration |
-| [DONE] | Sales data import (Excel/CSV) |
-| [DONE] | Efficiency calculation |
-| [DONE] | Dual color modes (Category/Heatmap) |
-| [DONE] | Hover tooltips |
-| [DONE] | Undo/Redo functionality |
-| [DONE] | Shelf resizing |
-| [DONE] | Zoom & Pan controls |
-| [DONE] | Save/Load layout (JSON) |
-| [DONE] | Export CSV with colors |
-| [DONE] | Drag-drop categories to shelves |
-| [DONE] | Remote access support |
-| [DONE] | Documentation (README.md, BRD.md) |
+| [DONE] | FastAPI backend with Ollama integration |
+| [DONE] | Image preprocessing (resize + optimize) |
+| [DONE] | Frontend image upload UI |
+| [DONE] | AI-powered shelf detection |
+| [DONE] | JSON export of analysis results |
+| [DONE] | Shelf generation on canvas |
 
-**Project Status**: Complete and ready for use. Server can be started with `uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload`.
+**Project Status**: Complete. Server running at `http://127.0.0.1:8000`.
+
+**Known Limitations**:
+- `qwen3-vl:2b` is a small model - coordinate detection may not be precise
+- Processing takes ~30-60 seconds per image
+- For better accuracy, consider using larger vision models (e.g., `llava`, `qwen2-vl:7b`)
 
 ---
 
 ## Summary Metadata
-**Update time**: 2026-03-21T05:52:01.416Z 
+**Update time**: 2026-03-23T13:05:00.000Z
+
+---
+
+## Summary Metadata
+**Update time**: 2026-03-23T13:16:42.605Z 

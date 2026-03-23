@@ -1,0 +1,57 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-03-23T22:35:05.769Z",
+  "source": "image_analysis",
+  "imageInfo": {
+    "width": 512,
+    "height": 384,
+    "description": "Store shelf layout with products football, swimming, tennis, basketball"
+  },
+  "shelves": [
+    {
+      "id": "shelf-1",
+      "type": "vertical",
+      "x": 0,
+      "y": 0,
+      "length": 1.5,
+      "category": "football",
+      "confidence": 1
+    },
+    {
+      "id": "shelf-2",
+      "type": "vertical",
+      "x": 0,
+      "y": 0,
+      "length": 2,
+      "category": "swimming",
+      "confidence": 1
+    },
+    {
+      "id": "shelf-3",
+      "type": "vertical",
+      "x": 0,
+      "y": 0,
+      "length": 2.5,
+      "category": "tennis",
+      "confidence": 1
+    },
+    {
+      "id": "shelf-4",
+      "type": "vertical",
+      "x": 0,
+      "y": 0,
+      "length": 1.5,
+      "category": "basketball",
+      "confidence": 1
+    },
+    {
+      "id": "shelf-5",
+      "type": "vertical",
+      "x": 0,
+      "y": 0,
+      "length": 3,
+      "category": "tennis",
+      "confidence": 1
+    }
+  ]
+}

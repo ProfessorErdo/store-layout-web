@@ -906,3 +906,113 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: var(--text-muted);
 }
+
+/* Image Import Section */
+.image-import-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.image-preview-container {
+    position: relative;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+.image-preview {
+    width: 100%;
+    max-height: 150px;
+    object-fit: cover;
+    display: block;
+}
+
+.btn-icon-small {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    padding: 4px;
+    background: rgba(0, 0, 0, 0.6);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.btn-icon-small:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.btn-icon-small .material-icons {
+    font-size: 16px;
+}
+
+/* Ollama Status */
+.ollama-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--surface-hover);
+    border-radius: var(--radius-md);
+    font-size: 12px;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text-muted);
+}
+
+.status-indicator.online {
+    background: var(--accent-color);
+    box-shadow: 0 0 6px var(--accent-color);
+}
+
+.status-indicator.offline {
+    background: var(--danger-color);
+    box-shadow: 0 0 6px var(--danger-color);
+}
+
+.status-text {
+    color: var(--text-secondary);
+}
+
+/* Analysis Progress */
+.analysis-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    background: var(--surface-hover);
+    border-radius: var(--radius-md);
+}
+
+.progress-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-align: center;
+}
